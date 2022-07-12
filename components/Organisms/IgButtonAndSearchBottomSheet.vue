@@ -16,14 +16,20 @@
             </v-btn>
           </template>
           <v-card>
-            <div class="v-card-title px-3">
+            <div class="v-card-title px-3 mt-3">
               <v-text-field
                 label="Instagram検索"
                 prepend-icon="mdi-magnify"
-                value="都立大学 居酒屋"
+                v-model="shopNameValue"
+                @keydown.enter="getInstagramInfo(keyword)"
               >
                 <template v-slot:append-outer>
-                  <v-btn color="primary" height="27"><span>検索</span></v-btn>
+                  <v-btn
+                    color="primary"
+                    height="27"
+                    @click="getInstagramInfo(keyword)"
+                    ><span>検索</span></v-btn
+                  >
                 </template>
               </v-text-field>
               <p>
@@ -34,9 +40,9 @@
             <v-card-text class="pt-3 px-1" style="height: 500px">
               <!-- 画像とパーマリンク -->
               <v-row dense>
-                <v-col cols="4" v-for="n in 15" :key="n">
+                <v-col cols="4" v-for="instagramItem in instagramItems">
                   <a
-                    href="https://www.instagram.com/p/Cf3orFQJjr0/"
+                    :href="instagramItem.permalink"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -44,7 +50,7 @@
                       lazy-src="https://picsum.photos/id/11/10/6"
                       min-height="140"
                       aspect-ratio="2"
-                      src="https://scontent-nrt1-1.cdninstagram.com/v/t51.29350-15/292535298_570319274643680_8888283717217545667_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=8ae9d6&_nc_ohc=wil7XuFTBF4AX9aOG_s&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=AEoDcc0EAAAA&oh=00_AT9097ggZGYoNDPEGFCPUFuI2VdCGWKPEdwZBSDXPd5cLg&oe=62D1B8F4"
+                      :src="instagramItem.media_url"
                     ></v-img>
                   </a>
                 </v-col>
@@ -58,13 +64,118 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import { Component, Prop, Vue } from "nuxt-property-decorator";
 @Component
 export default class IgButtonAndSearchBottomSheet extends Vue {
   /**
    * ボトムシート開閉用変数
    */
   sheet: boolean = false;
+
+  /**
+   * クリックしたボタンの店名
+   */
+  @Prop({ type: String, required: true })
+  shopName!: string;
+
+  /**
+   * Instagram検索用キーワード
+   */
+  keyword = "";
+
+  get shopNameValue() {
+    return this.shopName;
+  }
+
+  set shopNameValue(val: string) {
+    this.keyword = val;
+  }
+
+  /**
+   * InstagramハッシュタグIDを格納する用の変数
+   */
+  hashTagId = "";
+
+  async getInstagramInfo(keyword: string) {
+    console.log("this is a InstagramSearchButton");
+
+    console.log(keyword);
+
+    // ハッシュタグIDを取得
+    await this.getInstagramHashTag(keyword);
+    // ハッシュタグを元にInstagramで検索し、結果を取得
+    this.getInstagramHashTagItem();
+    // this.$nextTick(() => {
+    //   console.log("nextTick");
+    // });
+  }
+
+  /**
+   * 検索用パラメーター
+   */
+  searchParam: any = {
+    user_id: process.env.USER_ID,
+    access_token: process.env.IG_API_KEY,
+  };
+
+  /**
+   * InstagramのハッシュタグIDを取得
+   */
+  async getInstagramHashTag(query: string) {
+    // const hashTagSearch = "ig_hashtag_search";
+
+    // 検索qを画面から取得
+    this.searchParam.q = query;
+    // this.searchParam.q = "上智大学";
+
+    console.log("検索用パラメーター");
+    console.log(this.searchParam);
+
+    const param: {} = {
+      params: this.searchParam,
+    };
+    // ハッシュタグIDをAPIから取得
+    const res = await this.$axios
+      .$get(process.env.IG_BASE_URL + "ig_hashtag_search", param)
+      .catch((e: any) => {
+        return e.response;
+      });
+
+    this.hashTagId = res.data[0].id;
+
+    console.log("ハッシュタグID");
+    console.log(res);
+    console.log(this.hashTagId);
+  }
+
+  /**
+   * ハッシュタグ検索APIから取得したInstagramの投稿を格納する配列
+   */
+  instagramItems = [];
+
+  /**
+   * Instagramのハッシュタグ検索結果を取得
+   */
+  async getInstagramHashTagItem() {
+    this.searchParam.fields =
+      "id,media_type,caption,media_url,children{media_url},permalink";
+
+    const param: {} = {
+      params: this.searchParam,
+    };
+
+    // ハッシュタグ検索結果ををAPIから取得
+    const res = await this.$axios
+      .$get(process.env.IG_BASE_URL + this.hashTagId + "/recent_media", param)
+      .catch((e: any) => {
+        return e.response;
+      });
+    this.instagramItems = res.data;
+
+    console.log("インスタアイテム");
+    console.log(res);
+    console.log(this.instagramItems);
+  }
 }
 </script>
 

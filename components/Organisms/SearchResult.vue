@@ -53,7 +53,7 @@
           </v-col>
           <!-- インスタアクセスボタン -->
           <v-col cols="4" class="m-3 mt-n3">
-            <v-btn
+            <!-- <v-btn
               dark
               large
               height="80"
@@ -62,7 +62,10 @@
               @click="getInstagramInfo($event)"
             >
               <v-icon dark size="40"> mdi-instagram </v-icon>
-            </v-btn>
+            </v-btn> -->
+            <IgButtonAndSearchBottomSheet
+              :shopName="shop.name"
+            ></IgButtonAndSearchBottomSheet>
           </v-col>
         </v-row>
       </v-card>
@@ -79,92 +82,6 @@ export default class SearchResult extends Vue {
    */
   @Prop({ type: Array, required: true })
   shops!: [];
-
-  igBaseURL = "https://graph.facebook.com/";
-
-  /**
-   * 検索用パラメーター
-   */
-  searchParam: any = {
-    user_id: process.env.USER_ID,
-    access_token: process.env.IG_API_KEY,
-  };
-
-  async getInstagramInfo(event: any) {
-    console.log("this is a InstagramButton");
-    console.log(event);
-    // console.log(event.target.dataset.shop);
-    // console.log(event.target.dataset);
-
-    // クリックしたカードの店名を取得
-    const query = event.currentTarget.getAttribute("data-shop");
-
-    console.log(query);
-
-    // ハッシュタグIDを取得
-    await this.getInstagramHashTag(query);
-    // ハッシュタグを元にInstagramで検索し、結果を取得
-    await this.getInstagramHashTagItem();
-  }
-
-  /**
-   * ハッシュタグID
-   */
-  hashTagId = "";
-
-  /**
-   * InstagramのハッシュタグIDを取得
-   */
-  async getInstagramHashTag(query: string) {
-    const hashTagSearch = "ig_hashtag_search";
-
-    // 検索qを画面から取得
-    this.searchParam.q = query.replace(/ /g, "");
-    // this.searchParam.q = "上智大学";
-    console.log(this.searchParam);
-
-    const param: {} = {
-      params: this.searchParam,
-    };
-    // ハッシュタグIDをAPIから取得
-    const res = await this.$axios
-      .$get(this.igBaseURL + hashTagSearch, param)
-      .catch((e: any) => {
-        return e.response;
-      });
-
-    this.hashTagId = res.data[0].id;
-
-    console.log("ハッシュタグID");
-    console.log(res);
-    console.log(this.hashTagId);
-  }
-
-  instagramItems = [];
-
-  /**
-   * Instagramのハッシュタグ検索結果を取得
-   */
-  async getInstagramHashTagItem() {
-    this.searchParam.fields =
-      "id,media_type,caption,media_url,children{media_url}";
-
-    const param: {} = {
-      params: this.searchParam,
-    };
-
-    // ハッシュタグ検索結果ををAPIから取得
-    const res = await this.$axios
-      .$get(this.igBaseURL + this.hashTagId + "/recent_media", param)
-      .catch((e: any) => {
-        return e.response;
-      });
-    this.instagramItems = res.data;
-
-    console.log("インスタアイテム");
-    console.log(res);
-    console.log(this.instagramItems);
-  }
 }
 </script>
 
