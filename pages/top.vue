@@ -5,7 +5,7 @@
         color="#6CB4C2"
         buttonIcon="mdi-star"
         buttonText="お店を探す"
-        to="search"
+        href="search"
         height="170"
         width="290"
         class="my-10"
@@ -14,7 +14,7 @@
         color="#FFBF00"
         buttonIcon="mdi-silverware-fork-knife"
         buttonText="お気に入り"
-        to="favorite"
+        href="favorite"
         height="170"
         width="290"
       />

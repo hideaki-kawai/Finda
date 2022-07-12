@@ -4,9 +4,6 @@
       <div class="text-center">
         <v-bottom-sheet v-model="sheet" scrollable>
           <template v-slot:activator="{ on, attrs }">
-            <!-- <v-btn color="primary" dark v-bind="attrs" v-on="on">
-              <v-icon dark size="40"> mdi-instagram </v-icon>
-            </v-btn> -->
             <v-btn
               dark
               v-bind="attrs"
@@ -63,9 +60,9 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 @Component
-export default class Default extends Vue {
+export default class IgButtonAndSearchBottomSheet extends Vue {
   /**
-   * ボトムシート開閉
+   * ボトムシート開閉用変数
    */
   sheet: boolean = false;
 }

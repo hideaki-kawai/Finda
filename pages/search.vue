@@ -76,7 +76,7 @@ export interface Form {
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { hotpepperStore } from "~/store";
 @Component
-export default class Default extends Vue {
+export default class Search extends Vue {
   /**
    * 検索用フォーム
    * @type {Form}
@@ -117,6 +117,7 @@ export default class Default extends Vue {
   searchParam: {} = {
     key: process.env.API_KEY,
     format: "json",
+    count: "20",
   };
 
   /**

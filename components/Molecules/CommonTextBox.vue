@@ -22,7 +22,7 @@
 import { Vue, Component, Prop, Watch } from "nuxt-property-decorator";
 
 @Component
-export default class TextBox extends Vue {
+export default class CommonTextBox extends Vue {
   /**
    * 入力値
    * @type {string}

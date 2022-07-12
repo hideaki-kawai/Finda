@@ -6,7 +6,7 @@
       :width="width"
       :color="color"
       class="button"
-      :to="to"
+      :href="href"
       ><v-icon dark size="36" color="#FAFCFD"> {{ buttonIcon }} </v-icon>
       {{ buttonText }}</v-btn
     >
@@ -53,11 +53,18 @@ export default class Default extends Vue {
   width!: string;
 
   /**
-   * ボタンの遷移先
+   * ボタンの遷移先(SPA)
    * @type String
    */
   @Prop({ type: String })
   to!: string;
+
+  /**
+   * ボタンの遷移先
+   * @type String
+   */
+  @Prop({ type: String })
+  href!: string;
 }
 </script>
 
