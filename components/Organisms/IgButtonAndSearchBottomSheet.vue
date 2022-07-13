@@ -158,7 +158,7 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
    */
   async getInstagramHashTagItem() {
     this.searchParam.fields =
-      "id,media_type,caption,media_url,children{media_url},permalink";
+      "id,media_type,media_url,children{media_url},permalink";
 
     const param: {} = {
       params: this.searchParam,
@@ -170,11 +170,27 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
       .catch((e: any) => {
         return e.response;
       });
-    this.instagramItems = res.data;
+    const viewInstagramItems = res.data;
 
     console.log("インスタアイテム");
     console.log(res);
-    console.log(this.instagramItems);
+    console.log(viewInstagramItems);
+
+    // media_typeがアルバムなら最初の一枚だけmedia_urlに格納
+    viewInstagramItems.forEach((instagramItem: any) => {
+      switch (instagramItem.media_type) {
+        case "IMAGE":
+          break;
+        case "CAROUSEL_ALBUM":
+          instagramItem.media_url = instagramItem.children.data[0].media_url;
+          break;
+        case "VIDEO":
+          instagramItem.media_url = "/movie_icon.png";
+          break;
+      }
+    });
+
+    this.instagramItems = viewInstagramItems;
   }
 }
 </script>
