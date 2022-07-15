@@ -21,13 +21,13 @@
                 label="Instagram検索"
                 prepend-icon="mdi-magnify"
                 v-model="shopNameValue"
-                @keydown.enter="getInstagramInfo(keyword)"
+                @keydown.enter="getInstagramItems(keyword)"
               >
                 <template v-slot:append-outer>
                   <v-btn
                     color="primary"
                     height="27"
-                    @click="getInstagramInfo(keyword)"
+                    @click="getInstagramItems(keyword)"
                     ><span>検索</span></v-btn
                   >
                 </template>
@@ -39,7 +39,7 @@
             <v-divider></v-divider>
             <v-card-text class="pt-3 px-1" style="height: 500px">
               <!-- 画像とパーマリンク -->
-              <v-row dense>
+              <v-row dense v-if="!errorMessage">
                 <v-col cols="4" v-for="instagramItem in instagramItems">
                   <a
                     :href="instagramItem.permalink"
@@ -53,6 +53,11 @@
                       :src="instagramItem.media_url"
                     ></v-img>
                   </a>
+                </v-col>
+              </v-row>
+              <v-row v-else>
+                <v-col>
+                  <p class="text-center">{{ errorMessage }}</p>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -71,6 +76,11 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
    * ボトムシート開閉用変数
    */
   sheet: boolean = false;
+
+  /**
+   * エラーメッセージ格納
+   */
+  errorMessage: string = "";
 
   /**
    * クリックしたボタンの店名
@@ -96,22 +106,18 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
    */
   hashTagId = "";
 
-  async getInstagramInfo(keyword: string) {
-    console.log("this is a InstagramSearchButton");
-
+  async getInstagramItems(keyword: string) {
+    console.log("InstagramSearchButton is pushed!");
     console.log(keyword);
 
     // ハッシュタグIDを取得
     await this.getInstagramHashTag(keyword);
     // ハッシュタグを元にInstagramで検索し、結果を取得
     this.getInstagramHashTagItem();
-    // this.$nextTick(() => {
-    //   console.log("nextTick");
-    // });
   }
 
   /**
-   * 検索用パラメーター
+   * Instagram検索用パラメーター
    */
   searchParam: any = {
     user_id: process.env.USER_ID,
@@ -122,8 +128,6 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
    * InstagramのハッシュタグIDを取得
    */
   async getInstagramHashTag(query: string) {
-    // const hashTagSearch = "ig_hashtag_search";
-
     // 検索qを画面から取得
     this.searchParam.q = query;
     // this.searchParam.q = "上智大学";
@@ -141,10 +145,16 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
         return e.response;
       });
 
-    this.hashTagId = res.data[0].id;
+    console.log(res);
 
-    console.log("ハッシュタグID");
-    console.log(this.hashTagId);
+    // res.data.errorにエラーがあるか条件分岐
+    if (!res.data.error) {
+      this.hashTagId = res.data[0].id;
+    } else {
+      this.errorMessage = "Instagramに検索IDがありません。";
+    }
+
+    console.log("ハッシュタグID" + this.hashTagId);
   }
 
   /**
@@ -169,10 +179,20 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
       .catch((e: any) => {
         return e.response;
       });
-    const viewInstagramItems = res.data;
+
+    console.log(res);
+
+    let viewInstagramItems: any;
+
+    // resのdataに中身があるかどうか条件分岐
+    if (res.data.length > 0) {
+      viewInstagramItems = res.data;
+      this.errorMessage = "";
+    } else {
+      this.errorMessage = "Instagramに検索結果がありません。";
+    }
 
     console.log("インスタアイテム");
-    console.log(res);
     console.log(viewInstagramItems);
 
     // media_typeがアルバムなら最初の一枚だけmedia_urlに格納
