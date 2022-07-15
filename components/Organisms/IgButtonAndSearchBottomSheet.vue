@@ -144,7 +144,6 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
     this.hashTagId = res.data[0].id;
 
     console.log("ハッシュタグID");
-    console.log(res);
     console.log(this.hashTagId);
   }
 
