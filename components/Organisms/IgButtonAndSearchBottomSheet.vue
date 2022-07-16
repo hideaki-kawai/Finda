@@ -38,28 +38,44 @@
             </div>
             <v-divider></v-divider>
             <v-card-text class="pt-3 px-1" style="height: 500px">
+              <!-- ローディング -->
+              <div v-if="isBusy">
+                <v-row>
+                  <v-col class="text-center">
+                    <v-progress-circular
+                      indeterminate
+                      color="primary"
+                    ></v-progress-circular>
+                  </v-col>
+                </v-row>
+              </div>
               <!-- 画像とパーマリンク -->
-              <v-row dense v-if="!errorMessage">
-                <v-col cols="4" v-for="instagramItem in instagramItems">
-                  <a
-                    :href="instagramItem.permalink"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      min-height="140"
-                      aspect-ratio="2"
-                      :src="instagramItem.media_url"
-                    ></v-img>
-                  </a>
-                </v-col>
-              </v-row>
-              <v-row v-else>
-                <v-col>
-                  <p class="text-center">{{ errorMessage }}</p>
-                </v-col>
-              </v-row>
+              <div v-else>
+                <v-row dense v-if="!errorMessage">
+                  <v-col cols="4" v-for="instagramItem in instagramItems">
+                    <a
+                      :href="instagramItem.permalink"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <v-img
+                        lazy-src="https://picsum.photos/id/11/10/6"
+                        min-height="140"
+                        aspect-ratio="2"
+                        :src="instagramItem.media_url"
+                      ></v-img>
+                    </a>
+                  </v-col>
+                  <!-- <v-col v-else>
+                    <p class="text-center">{{ errorMessage }}</p>
+                  </v-col> -->
+                </v-row>
+                <v-row v-else>
+                  <v-col>
+                    <p class="text-center">{{ errorMessage }}</p>
+                  </v-col>
+                </v-row>
+              </div>
             </v-card-text>
           </v-card>
         </v-bottom-sheet>
@@ -76,6 +92,12 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
    * ボトムシート開閉用変数
    */
   sheet: boolean = false;
+
+  /**
+   * 非同期操作を実行中か否か判定するための変数
+   * @type {boolean}
+   */
+  isBusy: boolean = false;
 
   /**
    * エラーメッセージ格納
@@ -110,10 +132,16 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
     console.log("InstagramSearchButton is pushed!");
     console.log(keyword);
 
+    this.isBusy = true;
+
     // ハッシュタグIDを取得
     await this.getInstagramHashTag(keyword);
     // ハッシュタグを元にInstagramで検索し、結果を取得
     this.getInstagramHashTagItem();
+    // this.isBusy = false;
+    console.log(
+      "インスタ検索処理が終わったあとのエラーメッセージ：" + this.errorMessage
+    );
   }
 
   /**
@@ -145,12 +173,19 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
         return e.response;
       });
 
+    console.log("ハッシュタグAPIレスポンス");
     console.log(res);
 
     // res.data.errorにエラーがあるか条件分岐
     if (!res.data.error) {
       this.hashTagId = res.data[0].id;
     } else {
+      this.isBusy = false;
+      console.log("インスタハッシュタグの結果がなかったときの処理");
+      // ハッシュタグIDの初期化
+      this.hashTagId = "";
+      console.log(this.hashTagId);
+      console.log(this.instagramItems);
       this.errorMessage = "Instagramに検索IDがありません。";
     }
 
@@ -189,6 +224,11 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
       viewInstagramItems = res.data;
       this.errorMessage = "";
     } else {
+      this.isBusy = false;
+      console.log("インスタの結果がなかったときの処理");
+      // instagramItemの初期化
+      this.instagramItems.length = 0;
+      console.log(this.instagramItems);
       this.errorMessage = "Instagramに検索結果がありません。";
     }
 
@@ -208,7 +248,7 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
           break;
       }
     });
-
+    this.isBusy = false;
     this.instagramItems = viewInstagramItems;
   }
 }
