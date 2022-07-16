@@ -7,6 +7,7 @@
       :color="color"
       class="button"
       :href="href"
+      :disabled="disabled"
       ><v-icon dark size="36" color="#FAFCFD"> {{ buttonIcon }} </v-icon>
       {{ buttonText }}</v-btn
     >
@@ -65,6 +66,9 @@ export default class Default extends Vue {
    */
   @Prop({ type: String })
   href!: string;
+
+  @Prop({ type: Boolean })
+  disabled!: boolean;
 }
 </script>
 

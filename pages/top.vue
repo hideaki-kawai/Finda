@@ -17,7 +17,9 @@
         href="favorite"
         height="170"
         width="290"
+        disabled="disabled"
       />
+      <p class="text-center mt-3">Coming soon...</p>
     </v-container>
   </div>
 </template>
