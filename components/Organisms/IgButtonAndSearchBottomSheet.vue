@@ -39,43 +39,39 @@
             <v-divider></v-divider>
             <v-card-text class="pt-3 px-1" style="height: 500px">
               <!-- ローディング -->
-              <div v-if="isBusy">
-                <v-row>
-                  <v-col class="text-center">
-                    <v-progress-circular
-                      indeterminate
-                      color="primary"
-                    ></v-progress-circular>
-                  </v-col>
-                </v-row>
-              </div>
+              <v-row v-if="isBusy">
+                <v-col class="text-center">
+                  <v-progress-circular
+                    indeterminate
+                    color="primary"
+                  ></v-progress-circular>
+                </v-col>
+              </v-row>
               <!-- 画像とパーマリンク -->
-              <div v-else>
-                <v-row dense v-if="!errorMessage">
-                  <v-col cols="4" v-for="instagramItem in instagramItems">
-                    <a
-                      :href="instagramItem.permalink"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <v-img
-                        lazy-src="https://picsum.photos/id/11/10/6"
-                        min-height="140"
-                        aspect-ratio="2"
-                        :src="instagramItem.media_url"
-                      ></v-img>
-                    </a>
-                  </v-col>
-                  <!-- <v-col v-else>
+              <v-row dense v-else-if="!errorMessage">
+                <v-col cols="4" v-for="instagramItem in instagramItems">
+                  <a
+                    :href="instagramItem.permalink"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <v-img
+                      lazy-src="https://picsum.photos/id/11/10/6"
+                      min-height="140"
+                      aspect-ratio="2"
+                      :src="instagramItem.media_url"
+                    ></v-img>
+                  </a>
+                </v-col>
+                <!-- <v-col v-else>
                     <p class="text-center">{{ errorMessage }}</p>
                   </v-col> -->
-                </v-row>
-                <v-row v-else>
-                  <v-col>
-                    <p class="text-center">{{ errorMessage }}</p>
-                  </v-col>
-                </v-row>
-              </div>
+              </v-row>
+              <v-row v-else>
+                <v-col>
+                  <p class="text-center">{{ errorMessage }}</p>
+                </v-col>
+              </v-row>
             </v-card-text>
           </v-card>
         </v-bottom-sheet>
@@ -130,7 +126,10 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
 
   async getInstagramItems(keyword: string) {
     console.log("InstagramSearchButton is pushed!");
-    console.log(keyword);
+
+    if (!keyword) {
+      return (this.errorMessage = "Instagramに検索結果がありません。");
+    }
 
     this.isBusy = true;
 
@@ -138,10 +137,6 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
     await this.getInstagramHashTag(keyword);
     // ハッシュタグを元にInstagramで検索し、結果を取得
     this.getInstagramHashTagItem();
-    // this.isBusy = false;
-    console.log(
-      "インスタ検索処理が終わったあとのエラーメッセージ：" + this.errorMessage
-    );
   }
 
   /**
@@ -158,10 +153,6 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
   async getInstagramHashTag(query: string) {
     // 検索qを画面から取得
     this.searchParam.q = query;
-    // this.searchParam.q = "上智大学";
-
-    console.log("検索用パラメーター");
-    console.log(this.searchParam);
 
     const param: {} = {
       params: this.searchParam,
@@ -173,23 +164,17 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
         return e.response;
       });
 
-    console.log("ハッシュタグAPIレスポンス");
-    console.log(res);
-
     // res.data.errorにエラーがあるか条件分岐
     if (!res.data.error) {
       this.hashTagId = res.data[0].id;
     } else {
       this.isBusy = false;
-      console.log("インスタハッシュタグの結果がなかったときの処理");
       // ハッシュタグIDの初期化
       this.hashTagId = "";
-      console.log(this.hashTagId);
-      console.log(this.instagramItems);
       this.errorMessage = "Instagramに検索IDがありません。";
     }
 
-    console.log("ハッシュタグID" + this.hashTagId);
+    console.log("ハッシュタグID：" + this.hashTagId);
   }
 
   /**
@@ -215,39 +200,33 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
         return e.response;
       });
 
-    console.log(res);
-
     let viewInstagramItems: any;
 
     // resのdataに中身があるかどうか条件分岐
     if (res.data.length > 0) {
       viewInstagramItems = res.data;
+      // エラーメッセージの初期化
       this.errorMessage = "";
     } else {
       this.isBusy = false;
-      console.log("インスタの結果がなかったときの処理");
-      // instagramItemの初期化
-      this.instagramItems.length = 0;
-      console.log(this.instagramItems);
       this.errorMessage = "Instagramに検索結果がありません。";
     }
 
-    console.log("インスタアイテム");
-    console.log(viewInstagramItems);
-
-    // media_typeがアルバムなら最初の一枚だけmedia_urlに格納
-    viewInstagramItems.forEach((instagramItem: any) => {
-      switch (instagramItem.media_type) {
-        case "IMAGE":
-          break;
-        case "CAROUSEL_ALBUM":
-          instagramItem.media_url = instagramItem.children.data[0].media_url;
-          break;
-        case "VIDEO":
-          instagramItem.media_url = "/movie_icon.png";
-          break;
-      }
-    });
+    if (viewInstagramItems) {
+      // media_typeがアルバムなら最初の一枚だけmedia_urlに格納
+      viewInstagramItems.forEach((instagramItem: any) => {
+        switch (instagramItem.media_type) {
+          case "IMAGE":
+            break;
+          case "CAROUSEL_ALBUM":
+            instagramItem.media_url = instagramItem.children.data[0].media_url;
+            break;
+          case "VIDEO":
+            instagramItem.media_url = "/movie_icon.png";
+            break;
+        }
+      });
+    }
     this.isBusy = false;
     this.instagramItems = viewInstagramItems;
   }

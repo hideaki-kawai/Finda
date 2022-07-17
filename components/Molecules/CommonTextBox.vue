@@ -1,27 +1,40 @@
 <template>
-  <div>
-    <v-text-field
-      :id="id"
-      v-model="inputValue"
-      :label="label"
-      :prepend-icon="icon"
-      :name="id"
-      background-color="white"
-      required
-      dense
-      :type="type"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :maxlength="maxLength"
-      @keydown.enter="$emit('search')"
-      :keyup="convertHalfSpace()"
-    ></v-text-field>
-  </div>
+  <validation-provider v-slot="{ errors }" :name="label" :rules="rules">
+    <div>
+      <v-text-field
+        :id="id"
+        v-model="inputValue"
+        :prepend-icon="icon"
+        :name="id"
+        background-color="white"
+        dense
+        :type="type"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :maxlength="maxLength"
+        required
+        :error-messages="errors"
+        @keydown.enter="$emit('search')"
+        :keyup="convertHalfSpace()"
+      ></v-text-field>
+      <span>{{ errors.id }}</span>
+    </div>
+  </validation-provider>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "nuxt-property-decorator";
+import { ValidationProvider, ValidationObserver, extend } from "vee-validate";
+import { required } from "vee-validate/dist/rules";
 
-@Component
+// デフォルトのエラーメッセージを上書き
+extend("required", {
+  ...required,
+  message: "{_field_}は必須項目です。",
+});
+
+@Component({
+  components: { ValidationProvider, ValidationObserver },
+})
 export default class CommonTextBox extends Vue {
   /**
    * 入力値
@@ -92,6 +105,8 @@ export default class CommonTextBox extends Vue {
    */
   @Prop({ type: String })
   placeholder!: string;
+
+  errorMessages: string = "";
 
   /**
    * 必須項目か

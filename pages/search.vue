@@ -17,6 +17,8 @@
                   class="mt-3"
                   placeholder="新宿 居酒屋"
                   v-model="searchForm.keyword"
+                  rules="required"
+                  label="キーワード"
                   @search="search"
                 ></CommonTextBox>
                 <v-row class="pt-2">
@@ -124,8 +126,11 @@ export default class Search extends Vue {
    * 検索ボタンクリック処理
    */
   async search() {
+    if (!this.searchForm.keyword) {
+      return;
+    }
     const searchCondition = Object.assign(this.searchForm, this.searchParam);
-    console.log(searchCondition);
+
     const param: {} = {
       params: searchCondition,
     };
@@ -135,10 +140,9 @@ export default class Search extends Vue {
       .catch((e: any) => {
         return e.response;
       });
+
     const restaurantInfo: any = res.results.shop;
-    console.log(res);
-    console.log(res.results);
-    console.log(restaurantInfo);
+
     if (restaurantInfo.length > 0) {
       this.restaurantInfo = restaurantInfo;
       this.noResult = false;
@@ -162,8 +166,6 @@ export default class Search extends Vue {
       });
     const budgetInfo: any = res.results.budget;
     budgetInfo.unshift({ code: "", name: "" });
-    console.log(res.results);
-    console.log(budgetInfo);
     this.budgetInfo = budgetInfo;
   }
 
