@@ -9,7 +9,7 @@
               お店を探す</span
             ></v-expansion-panel-header
           >
-          <v-expansion-panel-content color="blue lighten-5">
+          <v-expansion-panel-content color="blue lighten-5" class="pt-3">
             <div class="p-1">
               <v-form>
                 <CommonTextBox
@@ -48,7 +48,7 @@
                 </v-row>
                 <v-row justify="center">
                   <v-btn
-                    class="mx-5 mb-5 small-button"
+                    class="mx-5 mb-4 small-button"
                     color="#6CB4C2"
                     width="280"
                     @click="search()"
@@ -147,7 +147,7 @@ export default class Search extends Vue {
       this.restaurantInfo = restaurantInfo;
       this.noResult = false;
     } else {
-      console.log("Null");
+      this.noResult = true;
     }
   }
 

@@ -8,8 +8,8 @@
               dark
               v-bind="attrs"
               v-on="on"
-              large
-              height="80"
+              small
+              height="60"
               color="pink darken-3"
             >
               <v-icon dark size="40"> mdi-instagram </v-icon>
@@ -32,8 +32,8 @@
                   >
                 </template>
               </v-text-field>
-              <p>
-                ※ハッシュタグ検索の精度の都合上、一単語に絞って検索してください。
+              <p class="description">
+                ※ハッシュタグ検索の精度の都合上、<span>一単語</span>に絞って検索してください。
               </p>
             </div>
             <v-divider></v-divider>
@@ -233,4 +233,11 @@ export default class IgButtonAndSearchBottomSheet extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.description {
+  font-size: 14px;
+}
+.description span {
+  color: red;
+}
+</style>
