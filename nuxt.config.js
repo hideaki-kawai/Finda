@@ -4,6 +4,7 @@ require("dotenv").config();
 const { API_KEY } = process.env;
 
 export default {
+  target: "static",
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
@@ -61,18 +62,11 @@ export default {
   },
 
   proxy: {
-    // "/api/": "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/",
     "/api": {
-      // target: "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/",
       target: "http://webservice.recruit.co.jp/hotpepper",
       pathRewrite: { "^/api": "" },
       followRedirects: true,
     },
-    // "/api2": {
-    //   target: "http://webservice.recruit.co.jp/hotpepper/budget/v1/",
-    //   pathRewrite: { "^/api": "" },
-    //   followRedirects: true,
-    // },
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -103,5 +97,10 @@ export default {
   },
   publicRuntimeConfig: {
     apiKey: process.env.NODE_ENV !== "production" ? API_KEY : undefined,
+  },
+
+  server: {
+    host: "0.0.0.0", // デフォルト: localhost,
+    timing: false,
   },
 };
