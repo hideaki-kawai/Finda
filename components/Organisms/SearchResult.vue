@@ -71,7 +71,7 @@ export default class SearchResult extends Vue {
    * 表示用データ
    */
   @Prop({ type: Array, required: true })
-  shops!: [];
+  shops!: any[];
 }
 </script>
 
