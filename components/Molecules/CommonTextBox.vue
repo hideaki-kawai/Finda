@@ -142,7 +142,7 @@ export default class CommonTextBox extends Vue {
    */
   @Watch("value")
   convertHalfSpace() {
-    this.value = this.value.replace(/　/g, " ");
+    this.inputValue = this.inputValue.replace(/　/g, " ");
   }
 }
 </script>
