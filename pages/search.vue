@@ -117,7 +117,8 @@ export default class Search extends Vue {
    * 検索用パラメーター
    */
   searchParam: {} = {
-    key: process.env.API_KEY,
+    // key: process.env.API_KEY,
+    key: this.$config.hpApiKey,
     format: "json",
     count: "20",
   };

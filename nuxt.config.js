@@ -63,7 +63,8 @@ export default {
 
   proxy: {
     "/api": {
-      target: "http://webservice.recruit.co.jp/hotpepper",
+      // target: "http://webservice.recruit.co.jp/hotpepper",
+      target: process.env.HP_API_BASE_URL,
       pathRewrite: { "^/api": "" },
       followRedirects: true,
     },
@@ -92,11 +93,12 @@ export default {
   build: {},
 
   privateRuntimeConfig: {
-    env_api_key: process.env.API_KEY,
+    env_api_key: process.env.HP_API_KEY,
     // apiKey: API_KEY,
   },
   publicRuntimeConfig: {
-    apiKey: process.env.NODE_ENV !== "production" ? API_KEY : undefined,
+    // apiKey: process.env.NODE_ENV !== "production" ? API_KEY : undefined,
+    hpApiKey: process.env.HP_API_KEY,
   },
 
   server: {
